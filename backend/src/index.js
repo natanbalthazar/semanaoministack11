@@ -1,5 +1,6 @@
 const cors = require('cors');
 const express = require('express');
+const { errors } = require('celebrate')
 const routes = require('./routes');
 
 const app = express();
@@ -10,5 +11,7 @@ app.use(cors()); // Como estamos em desenvolvimento, deixaremos apenas isso.
 app.use(express.json());
 // Necessário que o comando abaixo seja após o comando acima. 
 app.use(routes);
+
+app.use(errors());
 
 app.listen(3333);

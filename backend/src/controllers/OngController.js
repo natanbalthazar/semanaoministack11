@@ -1,5 +1,5 @@
 const connection = require('../database/connection'); // Para podemos utilizar comandos do banco
-const crypto = require('crypto'); // Pacote que vem junto do Node
+const generateUniqueId = require('../utils/generateUniqueId');
 
 module.exports = {
 
@@ -15,7 +15,7 @@ module.exports = {
     const { name, email, whatsapp, city, uf } = request.body;
 
     // Para o id, utilizaremos o crypto para usar um método dele para gerar uma String aleatória.
-    const id = crypto.randomBytes(4).toString('HEX');
+    const id = generateUniqueId();
 
     // Para fazer a conexão, utilizaremos o await para o node aguardar para então continuar
     await connection('ongs').insert({
