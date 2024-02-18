@@ -7,11 +7,11 @@
 </h3>
 
 <p align="center">
-  <a href="#zap-sobre-o-desafio">Sobre o desafio</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#iniciando-o-servidor-backend">Backend</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#testes">Testes</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#computer-iniciando-o-frontend">Frontend</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#iphone-mobile">Mobile</a>
+  <a href="https://github.com/natanbalthazar/semanaoministack11/tree/main?tab=readme-ov-file#man_technologist-iniciando-o-projeto">Iniciando o Projeto</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/natanbalthazar/semanaoministack11/tree/main?tab=readme-ov-file#package-iniciando-o-servidor-backend">Backend</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/natanbalthazar/semanaoministack11/tree/main?tab=readme-ov-file#gear-testes">Testes</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/natanbalthazar/semanaoministack11/tree/main?tab=readme-ov-file#computer-iniciando-o-frontend">Frontend</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/natanbalthazar/semanaoministack11/tree/main?tab=readme-ov-file#iphone-mobile">Mobile</a>
 </p>
 
 ## :zap: Sobre o desafio
