@@ -16,8 +16,7 @@
 
 ## :zap: Sobre o desafio
 
-Será construído uma aplicação para unir ONG's com pessoas com desejo de contruibuir com algum valor para ajudar causas. Dessa forma, através de um canal fácil e rápido de contato, o **Be the Hero** é uma forma de unir pesssoas para o bem, e será o produto final dessa Semana OminiStack 11.
-
+Será construído uma aplicação para unir ONG's com pessoas com desejo de contruibuir com algum valor para ajudar causas. Dessa forma, através de um canal fácil e rápido de contato, o **Be the Hero** é uma forma de unir pesssoas para o bem, e será o produto final dessa Semana OminiStack 11!
 
 # :man_technologist: Iniciando o Projeto
 
@@ -28,7 +27,7 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
 # :package: Iniciando o Servidor Backend
 
     cd backend
-    
+
     yarn
 
     yarn knex migrate:make create_ongs
@@ -42,9 +41,8 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
 # :gear: Testes
 
     cd backend
-    
-    npm test or yarn test
 
+    npm test or yarn test
 
 # :computer: Iniciando o Frontend
 
@@ -53,7 +51,6 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
     yarn
 
     yarn start
-
 
 # :iphone: Mobile
 
@@ -65,6 +62,6 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
 
     yarn start
 
-----
+---
 
 Feito com :heart: por **Natan Balthazar** :call_me_hand: [LinkedIn](https://www.linkedin.com/in/natanbalthazar/)
