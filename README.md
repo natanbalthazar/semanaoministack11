@@ -29,15 +29,15 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
 
     cd backend
     
-    yarn
+    pnpm install
 
-    yarn knex migrate:make create_ongs
+    pnpm knex migrate:make create_ongs
 
-    yarn knex migrate:make create_incidents
+    pnpm knex migrate:make create_incidents
 
-    yarn knex migrate:latest
+    pnpm knex migrate:latest
 
-    yarn dev
+    pnpm start
 
 # :gear: Testes
 
@@ -50,9 +50,9 @@ Será construído uma aplicação para unir ONG's com pessoas com desejo de cont
 
     cd frontend
 
-    yarn
+    pnpm install
 
-    yarn start
+    pnpm start
 
 
 # :iphone: Mobile
