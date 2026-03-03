@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset dos elementos no CSS - box-sizing: faz com que o padding seja anexado na largura e altura */
+@layer base {
+  * {
+    @apply m-0 p-0 outline-none box-border;
+  }
+
+  body {
+    @apply font-roboto text-sm antialiased bg-gray-soft text-gray-dark;
+  }
+
+  input,
+  button,
+  textarea {
+    @apply font-roboto text-lg;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .form-input {
+    @apply w-full h-[60px] text-gray-900 border border-gray-border rounded-lg px-6;
+  }
+
+  .form-textarea {
+    @apply w-full resize-y min-h-[140px] text-gray-900 border border-gray-border rounded-lg p-4 leading-6;
+  }
+
+  .btn-primary {
+    @apply w-full h-[60px] inline-flex items-center justify-center mt-4 bg-primary text-white font-bold rounded-lg transition-all hover:brightness-90;
+  }
+
+  .back-link {
+    @apply flex items-center mt-10 text-gray-dark text-lg no-underline hover:opacity-80;
+  }
+}
