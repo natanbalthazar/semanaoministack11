@@ -11,7 +11,7 @@ Interface web para o projeto Be The Hero (Semana O Ministack 11). Permite cadast
 - **Formulários:** react-hook-form + zod
 - **HTTP:** fetch (lib/api.ts)
 - **Estado:** TanStack Query (opcional)
-- **Testes:** Vitest + Testing Library
+- **Testes:** Vitest + Testing Library (unitários), Playwright (E2E visuais)
 
 ## Pré-requisitos
 
@@ -48,7 +48,10 @@ pnpm dev
 | `pnpm dev` | Servidor de desenvolvimento |
 | `pnpm build` | Build de produção |
 | `pnpm start` | Inicia o servidor (após build) |
-| `pnpm test` | Executa os testes |
+| `pnpm test` | Testes unitários (Vitest) |
+| `pnpm test:e2e` | Testes E2E (Playwright, abre navegador) |
+| `pnpm test:e2e:ui` | Modo UI interativo do Playwright |
+| `pnpm test:e2e:headed` | E2E com navegador visível |
 | `pnpm lint` | Verifica lint |
 
 ## Rotas
@@ -66,11 +69,25 @@ pnpm dev
 frontend/
 ├── app/              # App Router (páginas)
 ├── components/       # Componentes reutilizáveis
+├── e2e/              # Testes E2E (Playwright)
 ├── hooks/            # Hooks customizados
 ├── lib/              # API, auth, validações
 ├── public/           # Assets estáticos
-└── __tests__/        # Testes
+└── __tests__/        # Testes unitários (Vitest)
 ```
+
+## Testes E2E (Playwright)
+
+Os testes E2E rodam em navegador real (Chrome, Firefox, Safari) e usam mocks da API, sem necessidade do backend rodando:
+
+```bash
+pnpm install
+npx playwright install   # instala os navegadores (primeira vez)
+pnpm test:e2e
+```
+
+Para ver os testes rodando com o navegador visível: `pnpm test:e2e:headed`  
+Para o modo UI interativo: `pnpm test:e2e:ui`
 
 ## Documentação das mudanças
 
