@@ -1,25 +1,30 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Sem `target-branch`: os PRs vão para a branch padrão (main).
+# O ecossistema "npm" também cobre projetos com pnpm-lock.yaml.
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # Atualizações para npm
-    directory: "/" # Localização do package.json
+  - package-ecosystem: "npm"
+    directories:
+      - "/backend"
+      - "/frontend"
+      - "/mobile"
     schedule:
       interval: "weekly"
-    target-branch: "develop"
+    # Agrupa minor/patch em um PR por pasta, para não abrir dezenas de PRs por semana.
+    # Majors continuam em PRs separados, porque podem quebrar algo e merecem revisão.
+    groups:
+      minor-e-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      # No mobile, as versões são definidas pelo Expo SDK: suba de SDK com
+      # `npx expo install expo@latest && npx expo install --fix`.
+      # Atualizar react-native ou fazer major do expo por fora quebra a compatibilidade.
+      - dependency-name: "react-native"
+      - dependency-name: "expo"
+        update-types: ["version-update:semver-major"]
 
-  - package-ecosystem: "pnpm" # Atualizações para pnpm
-    directory: "/" # Localização do pnpm-lock.yaml
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "develop"
-
-  - package-ecosystem: "yarn" # Atualizações para yarn
-    directory: "/" # Localização do yarn.lock
-    schedule:
-      interval: "weekly"
-    target-branch: "develop"
-
