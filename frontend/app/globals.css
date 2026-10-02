@@ -1,42 +1,54 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind 4: a configuração (cores, fontes) fica aqui no CSS, não mais em tailwind.config.ts. */
+@import "tailwindcss";
 
-/* Reset dos elementos no CSS - box-sizing: faz com que o padding seja anexado na largura e altura */
+/* Cada variável --color-* vira utilitário: --color-primary → bg-primary, text-primary... */
+@theme {
+  --color-primary: #e02041;
+  --color-gray-soft: #f0f0f5;
+  --color-gray-border: #dcdce6;
+  --color-gray-text: #737380;
+  --color-gray-dark: #41414d;
+  --color-gray-icon: #a8a8b3;
+}
+
+/* `inline` porque --font-roboto é criada pelo next/font em tempo de execução (no <html>).
+   Trocar --font-sans faz a Roboto ser a fonte padrão de toda a página, inputs incluídos. */
+@theme inline {
+  --font-sans: var(--font-roboto), sans-serif;
+}
+
 @layer base {
-  * {
-    @apply m-0 p-0 outline-none box-border;
-  }
-
   body {
-    @apply font-roboto text-sm antialiased bg-gray-soft text-gray-dark;
+    @apply text-sm antialiased bg-gray-soft text-gray-dark;
   }
 
   input,
   button,
   textarea {
-    @apply font-roboto text-lg;
+    @apply text-lg;
   }
 
+  /* No Tailwind 4 o cursor padrão de <button> voltou a ser o do navegador (seta). */
   button {
     @apply cursor-pointer;
   }
 }
 
-@layer components {
-  .form-input {
-    @apply w-full h-[60px] text-gray-900 border border-gray-border rounded-lg px-6;
-  }
+/* Classes reutilizáveis. No Tailwind 4, `@utility` substitui o antigo `@layer components`.
+   Inputs: o preflight do v4 deixa o fundo transparente e o placeholder na cor do texto,
+   por isso `bg-white` e `placeholder:text-gray-400` mantêm o visual do v3. */
+@utility form-input {
+  @apply w-full h-[60px] text-gray-900 bg-white placeholder:text-gray-400 border border-gray-border rounded-lg px-6;
+}
 
-  .form-textarea {
-    @apply w-full resize-y min-h-[140px] text-gray-900 border border-gray-border rounded-lg p-4 leading-6;
-  }
+@utility form-textarea {
+  @apply w-full resize-y min-h-[140px] text-gray-900 bg-white placeholder:text-gray-400 border border-gray-border rounded-lg p-4 leading-6;
+}
 
-  .btn-primary {
-    @apply w-full h-[60px] inline-flex items-center justify-center mt-4 bg-primary text-white font-bold rounded-lg transition-all hover:brightness-90;
-  }
+@utility btn-primary {
+  @apply w-full h-[60px] inline-flex items-center justify-center mt-4 bg-primary text-white font-bold rounded-lg transition-all hover:brightness-90;
+}
 
-  .back-link {
-    @apply flex items-center mt-10 text-gray-dark text-lg no-underline hover:opacity-80;
-  }
+@utility back-link {
+  @apply flex items-center mt-10 text-gray-dark text-lg no-underline hover:opacity-80;
 }

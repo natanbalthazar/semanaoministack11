@@ -1,5 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// Porta do servidor Next usado nos testes. Se a 3000 já estiver ocupada por outro
+// projeto, rode `PORT=3100 pnpm test:e2e` (senão o Playwright reutiliza o servidor errado).
+const PORT = process.env.PORT ?? "3000";
+const baseURL = `http://localhost:${PORT}`;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -8,7 +13,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -23,8 +28,8 @@ export default defineConfig({
     // { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: `pnpm dev --port ${PORT}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

@@ -62,7 +62,7 @@ export default function ProfilePage() {
         <button
           onClick={handleLogout}
           type="button"
-          className="h-[60px] w-[60px] rounded border border-gray-border bg-transparent ml-4 transition-colors hover:border-gray-400"
+          className="h-[60px] w-[60px] rounded-sm border border-gray-border bg-transparent ml-4 transition-colors hover:border-gray-400"
         >
           <FiPower size={18} color="#e02041" />
         </button>

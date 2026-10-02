@@ -8,11 +8,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiPost } from "@/lib/api";
-import {
-  incidentSchema,
-  type IncidentFormInput,
-  type IncidentInput,
-} from "@/lib/validations/schemas";
+import { incidentSchema, type IncidentInput } from "@/lib/validations/schemas";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function NewIncidentPage() {
@@ -24,7 +20,7 @@ export default function NewIncidentPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<IncidentFormInput>({
+  } = useForm({
     resolver: zodResolver(incidentSchema),
     defaultValues: { title: "", description: "", value: "" },
   });
@@ -35,17 +31,12 @@ export default function NewIncidentPage() {
     }
   }, [ongId, router]);
 
-  async function onSubmit(data: IncidentFormInput) {
+  // Com zod 4 + @hookform/resolvers 5, o handleSubmit já recebe a saída do schema (value: number)
+  async function onSubmit(data: IncidentInput) {
     if (!ongId) return;
     setError("");
-    // Schema valida e transforma value para number
-    const value =
-      typeof data.value === "string"
-        ? parseFloat(data.value.replace(",", ".")) || 0
-        : data.value;
-    const payload: IncidentInput = { ...data, value };
     try {
-      await apiPost("incidents", payload, {
+      await apiPost("incidents", data, {
         Authorization: ongId,
       });
       router.push("/profile");
