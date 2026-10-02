@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Image, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons'
+import { Feather } from '@react-native-vector-icons/feather';
 import logoImg from '../../assets/logo.png'
 
 import api from './../../services/api';
