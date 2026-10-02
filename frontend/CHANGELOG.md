@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 - Layout responsivo
+
+Antes: layout só para desktop; em 320px o cadastro (356px) e o perfil (405px) estouravam a tela, e em 390px o perfil também; as demais telas ficavam espremidas lado a lado.
+
+- Mobile-first: sem prefixo = celular; `lg:` (>= 1024px) reproduz o layout antigo (diferença de 0 pixels no desktop).
+- `FormCard`: seções empilhadas e padding menor no celular (vale para `/register` e `/incidents/new`).
+- Logon: coluna centralizada; a ilustração só aparece a partir de `lg`.
+- Perfil: header quebra em linhas com `flex-wrap` + `order-*`; botão de excluir com área de toque de 44px; textos longos quebram (`wrap-break-word`).
+- `form-input` com `min-w-0` (o par Cidade/UF estourava em 320px); `back-link` com 44px de altura no celular.
+- Novo e2e `responsive.spec.ts`: sem rolagem horizontal em 320px e 390px nas 4 páginas.
+
 ## 0.4.0 - Sessão por token
 
 Acompanha a mudança do backend: as rotas protegidas exigem `Authorization: Bearer <token>`.

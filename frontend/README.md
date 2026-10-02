@@ -10,6 +10,13 @@ Interface web do Be The Hero (Semana OmniStack 11 da Rocketseat). ONGs se cadast
 - O token dura 7 dias. Em dev, se o backend estiver sem `AUTH_SECRET`, cada restart dele invalida o token (é só logar de novo).
 - O front precisa estar em uma origem liberada no `CORS_ORIGIN` do backend (padrão: `http://localhost:3000`).
 
+## Layout responsivo
+
+Mobile-first com os breakpoints do Tailwind: classes sem prefixo valem para o celular e as com `lg:` só a partir de 1024px, onde o layout original (desktop) é mantido igual.
+
+- Celular: seções do `FormCard` (cadastro de ONG e de caso) empilhadas, ilustração do logon escondida, header do perfil em linhas (logo + sair / saudação / botão), casos em 1 coluna.
+- `e2e/responsive.spec.ts` garante que nenhuma página tem rolagem horizontal em 320px e 390px.
+
 ## Stack
 
 - **Framework:** Next.js 16 (App Router, Turbopack)
