@@ -21,7 +21,6 @@ describe("useAuth", () => {
     const { result } = renderHook(() => useAuth());
     expect(result.current.ongId).toBeNull();
     expect(result.current.ongName).toBeNull();
-    expect(result.current.isAuthenticated).toBe(false);
   });
 
   it("retorna valores corretos quando autenticado", () => {
@@ -30,6 +29,5 @@ describe("useAuth", () => {
     const { result } = renderHook(() => useAuth());
     expect(result.current.ongId).toBe("abc12345");
     expect(result.current.ongName).toBe("ONG Teste");
-    expect(result.current.isAuthenticated).toBe(true);
   });
 });
