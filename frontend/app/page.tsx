@@ -35,10 +35,12 @@ export default function LogonPage() {
   });
 
   return (
-    <div className="w-full max-w-[1120px] min-h-screen mx-auto flex items-center justify-between">
-      <section className="w-full max-w-[350px] mr-8">
+    // mobile-first: sem prefixo = celular (coluna centralizada, com respiro nas laterais);
+    // `lg:` (>= 1024px) = layout original, formulário à esquerda e ilustração à direita.
+    <div className="w-full max-w-[1120px] min-h-screen mx-auto flex flex-col items-center justify-center px-6 py-10 lg:flex-row lg:justify-between lg:p-0">
+      <section className="w-full max-w-[350px] lg:mr-8">
         <Image src="/logo.svg" alt="Be The Hero" width={250} height={106} preload />
-        <form onSubmit={handleSubmit((data) => logon.mutate(data))} className="mt-[100px]">
+        <form onSubmit={handleSubmit((data) => logon.mutate(data))} className="mt-16 lg:mt-[100px]">
           <h1 className="text-3xl font-bold mb-8">Faça seu logon</h1>
 
           {/* Ex.: "Sua sessão expirou" quando a API recusou o token (401). */}
@@ -73,7 +75,8 @@ export default function LogonPage() {
         alt="Heroes"
         width={500}
         height={482}
-        className="hidden md:block"
+        // Só aparece em telas largas: abaixo de 1024px ela espremia o formulário.
+        className="hidden lg:block"
       />
     </div>
   );
