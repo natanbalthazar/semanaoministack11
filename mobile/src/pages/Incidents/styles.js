@@ -1,22 +1,15 @@
-import { StyleSheet } from "react-native";
-import Constants from 'expo-constants';
+import { StyleSheet } from 'react-native';
+
+import { colors, commonStyles } from '../../theme';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: Constants.statusBarHeight + 20,
-  },
+  container: commonStyles.container,
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
+  header: commonStyles.header,
 
   headerText: {
     fontSize: 15,
-    color: '#737380',
+    color: colors.text,
   },
 
   headerTextBold: {
@@ -27,30 +20,25 @@ export default StyleSheet.create({
     fontSize: 30,
     marginBottom: 16,
     marginTop: 48,
-    color: '#13131A',
+    color: colors.title,
     fontWeight: 'bold',
   },
 
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#737380',
+    color: colors.text,
   },
 
   incidentList: {
     marginTop: 32,
   },
 
-  incident: {
-    padding: 24,
-    borderRadius: 8,
-    backgroundColor: '#FFF',
-    marginBottom: 16,
-  },
+  incident: commonStyles.card,
 
   incidentProperty: {
     fontSize: 14,
-    color: '#41414d',
+    color: colors.label,
     fontWeight: 'bold',
   },
 
@@ -58,7 +46,7 @@ export default StyleSheet.create({
     marginTop: 8,
     fontSize: 15,
     marginBottom: 24,
-    color: '#737380',
+    color: colors.text,
   },
 
   detailsButton: {
@@ -68,9 +56,15 @@ export default StyleSheet.create({
   },
 
   detailsButtonText: {
-    color: '#e02041',
+    color: colors.primary,
     fontSize: 15,
     fontWeight: 'bold',
   },
 
-})
+  errorText: {
+    marginTop: 16,
+    fontSize: 15,
+    color: colors.primary,
+    textAlign: 'center',
+  },
+});
