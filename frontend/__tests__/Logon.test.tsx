@@ -10,7 +10,7 @@ vi.mock("@/lib/api", () => ({
   apiPost: vi.fn(),
 }));
 vi.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ setAuth: vi.fn() }),
+  useAuth: () => ({ setAuth: vi.fn(), notice: null }),
 }));
 vi.mock("next/image", () => ({
   default: (props: { src: string; alt: string }) => (

@@ -12,10 +12,10 @@ import { FormCard } from "@/components/FormCard";
 import { RequireAuth } from "@/components/RequireAuth";
 
 export default function NewIncidentPage() {
-  return <RequireAuth>{({ ongId }) => <NewIncidentForm ongId={ongId} />}</RequireAuth>;
+  return <RequireAuth>{() => <NewIncidentForm />}</RequireAuth>;
 }
 
-function NewIncidentForm({ ongId }: { ongId: string }) {
+function NewIncidentForm() {
   const router = useRouter();
 
   // O resolver informa ao useForm os DOIS tipos do schema: o de entrada (value: string,
@@ -31,7 +31,7 @@ function NewIncidentForm({ ongId }: { ongId: string }) {
 
   const createIncident = useMutation({
     mutationFn: (data: z.output<typeof incidentSchema>) =>
-      apiPost("incidents", data, { Authorization: ongId }),
+      apiPost("incidents", data, { auth: true }),
     onSuccess: () => router.push("/profile"),
   });
 
