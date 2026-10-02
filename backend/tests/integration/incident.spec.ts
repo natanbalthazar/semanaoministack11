@@ -49,6 +49,10 @@ describe("Incidents", () => {
     expect(page1.body).toHaveLength(5);
     expect(page1.body[0]).toMatchObject({ title: "Caso 6", value: "120", ong_id: ongId, ...ong });
 
+    // O navegador só deixa o JS ler X-Total-Count se o CORS expuser o header (app web/Expo web).
+    const cross = await request(app).get("/incidents").set("Origin", "http://localhost:8081");
+    expect(cross.headers["access-control-expose-headers"]).toBe("X-Total-Count");
+
     const page2 = await request(app).get("/incidents?page=2");
     expect(page2.body.map((i: { title: string }) => i.title)).toEqual(["Caso 1"]);
   });

@@ -6,9 +6,12 @@ import { generateOpenAPIDocument } from "./validations/schemas";
 
 const app = express();
 
-// Sem opções, o cors() libera QUALQUER origem a chamar a API. Ok para estudo/desenvolvimento;
-// em produção, restrinja: cors({ origin: "https://seu-front.com" }).
-app.use(cors());
+// Sem `origin`, o cors() libera QUALQUER origem a chamar a API. Ok para estudo/desenvolvimento;
+// em produção, restrinja: cors({ origin: "https://seu-front.com", ... }).
+// `exposedHeaders`: por padrão o navegador esconde do JS os headers customizados de respostas
+// de outra origem. Sem isso, o app web leria `X-Total-Count` como null ("Total de 0 casos").
+// No app nativo não faz diferença, porque CORS só existe no navegador.
+app.use(cors({ exposedHeaders: ["X-Total-Count"] }));
 
 // Converte o corpo JSON em `request.body`. Precisa vir ANTES das rotas: se vier depois,
 // os controllers recebem `request.body` undefined e a validação responde 400 para tudo.
