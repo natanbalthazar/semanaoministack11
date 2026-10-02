@@ -1,16 +1,23 @@
-import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
 import {
+  extendZodWithOpenApi,
   OpenAPIRegistry,
   OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
 
+// Adiciona `.openapi()` aos schemas Zod. Sem isso, `registry.register(...)` abaixo lança
+// "zodSchema.openapi is not a function" ao subir o servidor.
 extendZodWithOpenApi(z);
 
-// Schemas para validação e documentação OpenAPI
+/*
+ * Os mesmos schemas Zod servem para duas coisas:
+ * 1. validar a requisição (via `validate()` em routes/index.ts) e
+ * 2. gerar a documentação OpenAPI exibida em /api-docs.
+ * Mudou uma regra aqui? A validação e a documentação mudam juntas, sem duplicar nada.
+ */
 export const createOngSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("Email inválido"),
+  email: z.email("Email inválido"),
   whatsapp: z.string().min(10).max(11),
   city: z.string().min(1, "Cidade é obrigatória"),
   uf: z.string().length(2, "UF deve ter 2 caracteres"),
@@ -23,9 +30,11 @@ export const createSessionSchema = z.object({
 export const createIncidentSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   description: z.string().min(1, "Descrição é obrigatória"),
-  value: z.number().min(1, "Valor deve ser maior que 0"),
+  value: z.number().min(1, "Valor deve ser no mínimo 1"),
 });
 
+// `z.coerce`: query string e params de URL sempre chegam como texto ("2"); coerce converte
+// para número antes de validar. `?page=abc` → NaN → 400.
 export const queryIncidentsSchema = z.object({
   page: z.coerce.number().optional(),
 });
@@ -34,14 +43,14 @@ export const paramsIncidentSchema = z.object({
   id: z.coerce.number(),
 });
 
-export const authorizationHeaderSchema = z
-  .object({
-    authorization: z.string().min(1, "Authorization é obrigatório"),
-  })
-  .passthrough();
+// Rotas "autenticadas" recebem o ID da ONG no header `Authorization` (sem token/senha).
+// Sem o header → 400. `looseObject` aceita os demais headers (host, content-type...) sem reclamar.
+export const authorizationHeaderSchema = z.looseObject({
+  authorization: z.string().min(1, "Authorization é obrigatório"),
+});
 
 // Registry para documentação OpenAPI
-export const registry = new OpenAPIRegistry();
+const registry = new OpenAPIRegistry();
 
 // Registrar schemas
 registry.register("CreateOng", createOngSchema);
@@ -172,7 +181,7 @@ registry.registerPath({
   path: "/incidents/{id}",
   summary: "Remove incidente",
   request: {
-    params: z.object({ id: z.coerce.number() }),
+    params: paramsIncidentSchema,
   },
   responses: {
     204: {
@@ -189,9 +198,7 @@ registry.registerPath({
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
-export function generateOpenAPIDocument(): ReturnType<
-  OpenApiGeneratorV3["generateDocument"]
-> {
+export function generateOpenAPIDocument() {
   return generator.generateDocument({
     openapi: "3.0.0",
     info: {
