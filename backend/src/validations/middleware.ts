@@ -1,24 +1,27 @@
-import { Request, Response, NextFunction } from "express";
-import { ZodSchema, ZodError } from "zod";
+import type { NextFunction, Request, Response } from "express";
+import type { ZodType } from "zod";
 
 type ValidateSource = "body" | "query" | "params" | "headers";
 
-export function validate(schema: ZodSchema, source: ValidateSource = "body") {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    try {
-      const data = req[source];
-      const parsed = schema.parse(data);
-      Object.assign(req[source] as object, parsed as object);
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return next({
-          status: 400,
-          message: "Validation failed",
-          details: error.errors,
-        });
-      }
-      next(error);
+/**
+ * Middleware de validação: confere `req[source]` contra um schema Zod ANTES do controller.
+ *
+ * - Dado válido → chama `next()` e o controller roda.
+ * - Dado inválido → responde 400 `{ message, details }` e o controller nem é chamado.
+ *   Ex.: `POST /ongs` com `{ "email": "x" }` → 400 com a lista de campos com problema em `details`.
+ *
+ * Ele só barra; não substitui `req[source]` pelo valor convertido. No Express 5 o
+ * `req.query` é somente leitura (getter), então NÃO faça `req.query = parsed`: lança TypeError.
+ * Por isso os controllers continuam convertendo o que precisam (ex.: `Number(page)`).
+ */
+export function validate(schema: ZodType, source: ValidateSource) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req[source]);
+    if (!result.success) {
+      return res
+        .status(400)
+        .json({ message: "Validation failed", details: result.error.issues });
     }
+    next();
   };
 }

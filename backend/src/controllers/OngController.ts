@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { db } from '../database';
 import { ongs } from '../database/schema';
 import { generateUniqueId } from '../utils/generateUniqueId';
 
 export const OngController = {
+  // GET /ongs. Atenção: devolve o `id` de todas as ONGs, e esse id é a "senha" de login
+  // (header Authorization). Mantido por compatibilidade; numa API real isso não seria público.
   async index(_request: Request, response: Response) {
     const allOngs = await db.select().from(ongs);
     return response.json(allOngs);
@@ -17,14 +19,7 @@ export const OngController = {
     const id = generateUniqueId();
 
     // Para fazer a inserção, utilizaremos o await para o node aguardar para então continuar
-    await db.insert(ongs).values({
-      id,
-      name,
-      email,
-      whatsapp,
-      city,
-      uf,
-    });
+    await db.insert(ongs).values({ id, name, email, whatsapp, city, uf });
 
     // Vamos devolver apenas o id para o cliente. Isso porque quando a ong se cadastra,
     // ela precisa saber o id, visto que vai funcionar como um cpf/cnpj dentro do sistema.

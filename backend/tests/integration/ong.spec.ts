@@ -1,26 +1,17 @@
-import { describe, it, expect, beforeEach, beforeAll } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
-import path from "path";
 import app from "../../src/app";
-import { migrate } from "drizzle-orm/libsql/migrator";
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { db } from "../../src/database";
+import { runMigrations } from "../../src/database/migrate";
 import { incidents, ongs } from "../../src/database/schema";
 
-const testDbPath = path.resolve(__dirname, "../../src/database/test.sqlite");
-const client = createClient({ url: `file:${testDbPath}` });
-const db = drizzle(client);
-
+// O Vitest define NODE_ENV=test, então `db` aqui aponta para src/database/test.sqlite.
 describe("ONG", () => {
-  beforeAll(async () => {
-    // Rodar migrations uma vez antes de todos os testes
-    await migrate(db, {
-      migrationsFolder: path.resolve(__dirname, "../../drizzle"),
-    });
-  });
+  // Cria as tabelas (se ainda não existirem) uma vez antes de todos os testes.
+  beforeAll(runMigrations);
 
+  // Limpa as tabelas antes de cada teste. incidents primeiro: ela referencia ongs (chave estrangeira).
   beforeEach(async () => {
-    // Limpar tabelas antes de cada teste
     await db.delete(incidents);
     await db.delete(ongs);
   });
