@@ -50,24 +50,29 @@ function Profile({ token, ongName }: Session) {
   }
 
   return (
-    <div className="w-full max-w-[1180px] px-8 my-8 mx-auto">
-      <header className="flex items-center">
-        <Image src="/logo.svg" alt="Be The Hero" width={200} height={85} preload />
-        <span className="text-xl ml-6">Bem vinda, {ongName}</span>
-        <Link href="/incidents/new" className="btn-primary w-[260px] ml-auto mt-0">
+    <div className="w-full max-w-[1180px] px-4 lg:px-8 my-8 mx-auto">
+      {/* Celular: o header quebra em linhas (flex-wrap) e `order-*` reorganiza sem mudar o HTML:
+          1ª linha logo + sair, 2ª a saudação, 3ª o botão em largura total.
+          lg: uma linha só, na ordem do HTML (lg:order-none), como no layout original. */}
+      <header className="flex flex-wrap items-center gap-y-6 lg:flex-nowrap">
+        <Image src="/logo.svg" alt="Be The Hero" width={200} height={85} preload className="w-40 h-auto lg:w-[200px]" />
+        <span className="order-3 basis-full min-w-0 wrap-break-word text-xl lg:order-none lg:basis-auto lg:ml-6">
+          Bem vinda, {ongName}
+        </span>
+        <Link href="/incidents/new" className="btn-primary order-4 mt-0 lg:order-none lg:w-[260px] lg:ml-auto">
           Cadastrar novo caso
         </Link>
         <button
           onClick={handleLogout}
           type="button"
           aria-label="Sair"
-          className="h-[60px] w-[60px] rounded-sm border border-gray-border bg-transparent ml-4 transition-colors hover:border-gray-400"
+          className="order-2 ml-auto h-[60px] w-[60px] shrink-0 rounded-sm border border-gray-border bg-transparent lg:order-none lg:ml-4 transition-colors hover:border-gray-400"
         >
           <FiPower size={18} color="#e02041" />
         </button>
       </header>
 
-      <h1 className="mt-20 mb-6 text-2xl font-bold">Casos cadastrados</h1>
+      <h1 className="mt-12 lg:mt-20 mb-6 text-2xl font-bold">Casos cadastrados</h1>
 
       {isPending ? (
         <p>Carregando...</p>
@@ -78,7 +83,7 @@ function Profile({ token, ongName }: Session) {
       ) : (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-6 list-none">
           {incidents.map((incident) => (
-            <li key={incident.id} className="bg-white p-6 rounded-lg relative">
+            <li key={incident.id} className="bg-white p-6 rounded-lg relative wrap-break-word">
               <strong className="block mb-4 text-gray-dark">CASO:</strong>
               <p className="text-gray-text leading-5 text-base">{incident.title}</p>
 
@@ -94,7 +99,8 @@ function Profile({ token, ongName }: Session) {
                 onClick={() => deleteIncident.mutate(incident.id)}
                 type="button"
                 aria-label={`Excluir caso ${incident.title}`}
-                className="absolute right-6 top-6 border-0 bg-transparent hover:opacity-80"
+                // p-3 + right-3/top-3: o ícone fica no mesmo lugar, mas a área de toque vira 44px.
+                className="absolute right-3 top-3 p-3 border-0 bg-transparent hover:opacity-80"
               >
                 <FiTrash2 size={20} color="#a8a8b3" />
               </button>

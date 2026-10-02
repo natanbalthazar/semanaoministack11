@@ -37,8 +37,10 @@
 /* Classes reutilizáveis. No Tailwind 4, `@utility` substitui o antigo `@layer components`.
    Inputs: o preflight do v4 deixa o fundo transparente e o placeholder na cor do texto,
    por isso `bg-white` e `placeholder:text-gray-400` mantêm o visual do v3. */
+/* `min-w-0`: dentro de um flex (Cidade + UF) o input tem largura mínima "natural" de ~20
+   caracteres e estourava a tela de 320px. Com ele o input aceita encolher. */
 @utility form-input {
-  @apply w-full h-[60px] text-gray-900 bg-white placeholder:text-gray-400 border border-gray-border rounded-lg px-6;
+  @apply w-full min-w-0 h-[60px] text-gray-900 bg-white placeholder:text-gray-400 border border-gray-border rounded-lg px-6;
 }
 
 @utility form-textarea {
@@ -49,6 +51,7 @@
   @apply w-full h-[60px] inline-flex items-center justify-center mt-4 bg-primary text-white font-bold rounded-lg transition-all hover:brightness-90;
 }
 
+/* min-h-11 = 44px de área de toque no celular; lg:min-h-0 mantém o desktop como era. */
 @utility back-link {
-  @apply flex items-center mt-10 text-gray-dark text-lg no-underline hover:opacity-80;
+  @apply flex items-center min-h-11 lg:min-h-0 mt-10 text-gray-dark text-lg no-underline hover:opacity-80;
 }
