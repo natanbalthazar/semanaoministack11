@@ -1,10 +1,48 @@
-# Changelog - Migração Frontend para Next.js 15 e Stack Moderna
+# Changelog
+
+## 0.3.0 - Next 16, Tailwind 4 e limpeza
+
+### Dependências
+
+| Pacote | Antes | Depois |
+|--------|-------|--------|
+| next | 15.5 | **16.3** |
+| react / react-dom | 19.2 | 19.3 |
+| tailwindcss | 3.4 | **4.3** (+ `@tailwindcss/postcss`; `autoprefixer` removido) |
+| zod | 3.25 | **4.6** |
+| @hookform/resolvers | 3.10 | **5.9** |
+| vitest | 2.1 | **5.0** (+ `vite` 8) |
+| jsdom | 25 | **30** |
+| @testing-library/jest-dom | 6.9 | **7.0** |
+| typescript | 5.9 | **6.0** |
+| eslint / eslint-config-next | — | 9 / 16.3 |
+| @playwright/test | 1.58 | 1.63 |
+
+`pnpm audit`: 58 → 0 vulnerabilidades.
+
+### Migrações
+
+- `next lint` não existe mais: `pnpm lint` roda `eslint .` com `eslint.config.mjs` (flat config). O `next build` não roda lint.
+- Tailwind 4: cores e fonte em `@theme` no `app/globals.css`; classes próprias com `@utility`. Inputs ganharam `bg-white` e `placeholder:text-gray-400` porque o preflight do v4 mudou esses padrões.
+- `next/image`: `priority` → `preload`.
+- Node mínimo: 22.22.2 (Vitest 5/jsdom 30). `.nvmrc` → 24.
+
+### Correções e refatoração
+
+- Fim do erro "Hydration failed" em `/profile` e `/incidents/new` (`useAuth` com `useSyncExternalStore`).
+- `pnpm test` não tenta mais rodar os specs do Playwright.
+- `/profile` mostra mensagem de erro quando a API falha.
+- React Query usado de fato (`useQuery`/`useMutation`); `RequireAuth`, `FormCard` e `FieldError` removem duplicação.
+- Acessibilidade: `aria-label` em inputs e botões de ícone; foco visível.
+- Removidas as cópias não usadas em `src/assets`.
+
+## 0.2.0 - Migração Frontend para Next.js 15 e Stack Moderna
 
 Este documento descreve as mudanças realizadas na atualização do frontend da aplicação Be The Hero (Semana O Ministack 11).
 
-## Resumo das mudanças
+### Resumo das mudanças
 
-### Stack tecnológica
+#### Stack tecnológica
 
 | Antes | Depois |
 |-------|--------|
@@ -17,14 +55,14 @@ Este documento descreve as mudanças realizadas na atualização do frontend da 
 | Sem validação de forms | **react-hook-form + zod** |
 | Sem testes | **Vitest + Testing Library** |
 
-### Novas funcionalidades
+#### Novas funcionalidades
 
 - **Validação de formulários:** react-hook-form com schemas Zod alinhados ao backend
 - **Tipagem forte:** Todo o código migrado para TypeScript
 - **Estilização utilitária:** Tailwind CSS com cores customizadas
 - **Testes:** Unitários para Logon e useAuth
 
-### Estrutura de arquivos
+#### Estrutura de arquivos
 
 - `app/` - Páginas com App Router (layout, page, register, profile, incidents/new)
 - `components/` - Providers (QueryClient)
@@ -33,23 +71,18 @@ Este documento descreve as mudanças realizadas na atualização do frontend da 
 - `public/` - logo.svg, heroes.png
 - `__tests__/` - Logon.test.tsx, useAuth.test.ts
 
-### Rotas mantidas
+#### Rotas mantidas
 
 - `/` - Logon (login por ID da ONG)
 - `/register` - Cadastro de ONG
 - `/profile` - Perfil com casos da ONG (protegida)
 - `/incidents/new` - Novo incidente (protegida)
 
-### Proteção de rotas
+#### Proteção de rotas
 
 - Profile e NewIncident verificam `ongId` no localStorage
 - Se não autenticado, redirecionam para `/`
 
-### Variáveis de ambiente
+#### Variáveis de ambiente
 
 - `NEXT_PUBLIC_API_URL` - URL do backend (default: http://localhost:3333)
-
-### Comentários preservados
-
-- `app/register/page.tsx`: "Função responsável por fazer o cadastro", "Para validar se deu certo - try"
-- `app/globals.css`: Reset, box-sizing
