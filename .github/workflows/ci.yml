@@ -79,6 +79,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: mobile/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - run: pnpm test
       - run: npx expo-doctor
       # Gerar o bundle pega erro de import/sintaxe sem precisar de celular ou emulador.
       - run: npx expo export --platform web
