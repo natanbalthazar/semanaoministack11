@@ -43,14 +43,19 @@ export const paramsIncidentSchema = z.object({
   id: z.coerce.number(),
 });
 
-// Rotas "autenticadas" recebem o ID da ONG no header `Authorization` (sem token/senha).
-// Sem o header → 400. `looseObject` aceita os demais headers (host, content-type...) sem reclamar.
-export const authorizationHeaderSchema = z.looseObject({
-  authorization: z.string().min(1, "Authorization é obrigatório"),
-});
-
 // Registry para documentação OpenAPI
 const registry = new OpenAPIRegistry();
+
+// Esquema de segurança "Bearer": no /api-docs aparece o botão "Authorize" para colar o token
+// devolvido por POST /sessions. Rotas com `security: bearer` exigem `Authorization: Bearer <token>`.
+// (O header não é validado por schema Zod: quem confere é o middleware `ensureAuthenticated`.)
+const bearerAuth = registry.registerComponent("securitySchemes", "bearerAuth", {
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "JWT",
+});
+const security = [{ [bearerAuth.name]: [] }];
+const unauthorized = { description: "Token ausente, inválido ou expirado" };
 
 // Registrar schemas
 registry.register("CreateOng", createOngSchema);
@@ -61,7 +66,7 @@ registry.register("CreateIncident", createIncidentSchema);
 registry.registerPath({
   method: "post",
   path: "/sessions",
-  summary: "Login por ID da ONG",
+  summary: "Login por ID da ONG (devolve o token de acesso)",
   request: {
     body: {
       content: {
@@ -76,12 +81,18 @@ registry.registerPath({
       description: "ONG encontrada",
       content: {
         "application/json": {
-          schema: z.object({ name: z.string() }),
+          schema: z.object({
+            name: z.string(),
+            token: z.string().openapi({ description: "JWT HS256, válido por 7 dias" }),
+          }),
         },
       },
     },
     400: {
       description: "ONG não encontrada",
+    },
+    429: {
+      description: "Muitas tentativas de login (limite por IP)",
     },
   },
 });
@@ -89,10 +100,15 @@ registry.registerPath({
 registry.registerPath({
   method: "get",
   path: "/ongs",
-  summary: "Lista todas as ONGs",
+  summary: "Lista todas as ONGs (sem o ID, que é a credencial de login)",
   responses: {
     200: {
       description: "Lista de ONGs",
+      content: {
+        "application/json": {
+          schema: z.array(createOngSchema),
+        },
+      },
     },
   },
 });
@@ -126,13 +142,12 @@ registry.registerPath({
   method: "get",
   path: "/profile",
   summary: "Lista incidentes da ONG autenticada",
-  request: {
-    headers: authorizationHeaderSchema,
-  },
+  security,
   responses: {
     200: {
       description: "Lista de incidentes da ONG",
     },
+    401: unauthorized,
   },
 });
 
@@ -154,8 +169,8 @@ registry.registerPath({
   method: "post",
   path: "/incidents",
   summary: "Cria novo incidente",
+  security,
   request: {
-    headers: authorizationHeaderSchema,
     body: {
       content: {
         "application/json": {
@@ -173,6 +188,7 @@ registry.registerPath({
         },
       },
     },
+    401: unauthorized,
   },
 });
 
@@ -180,6 +196,7 @@ registry.registerPath({
   method: "delete",
   path: "/incidents/{id}",
   summary: "Remove incidente",
+  security,
   request: {
     params: paramsIncidentSchema,
   },
@@ -187,8 +204,9 @@ registry.registerPath({
     204: {
       description: "Incidente removido",
     },
-    401: {
-      description: "Operação não permitida",
+    401: unauthorized,
+    403: {
+      description: "O incidente é de outra ONG",
     },
     404: {
       description: "Incidente não encontrado",

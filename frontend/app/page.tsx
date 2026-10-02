@@ -16,7 +16,7 @@ import { FieldError } from "@/components/FieldError";
 // Sem ele, o Next trata o arquivo como Server Component e o build falha ao usar hooks.
 export default function LogonPage() {
   const router = useRouter();
-  const { setAuth } = useAuth();
+  const { setAuth, notice } = useAuth();
 
   const {
     register,
@@ -25,10 +25,11 @@ export default function LogonPage() {
   } = useForm({ resolver: zodResolver(logonSchema), defaultValues: { id: "" } });
 
   // useMutation guarda o estado da requisição (isPending, isError) para nós.
+  // O ID digitado só vai neste POST; o que guardamos é o token devolvido pelo backend.
   const logon = useMutation({
-    mutationFn: (data: { id: string }) => apiPost<{ name: string }>("sessions", data),
-    onSuccess: ({ name }, { id }) => {
-      setAuth(id, name);
+    mutationFn: (data: { id: string }) => apiPost<{ name: string; token: string }>("sessions", data),
+    onSuccess: ({ name, token }) => {
+      setAuth(token, name);
       router.push("/profile");
     },
   });
@@ -39,6 +40,13 @@ export default function LogonPage() {
         <Image src="/logo.svg" alt="Be The Hero" width={250} height={106} preload />
         <form onSubmit={handleSubmit((data) => logon.mutate(data))} className="mt-[100px]">
           <h1 className="text-3xl font-bold mb-8">Faça seu logon</h1>
+
+          {/* Ex.: "Sua sessão expirou" quando a API recusou o token (401). */}
+          {notice && (
+            <p role="status" className="mb-4 text-sm text-gray-dark">
+              {notice}
+            </p>
+          )}
 
           <input
             type="text"

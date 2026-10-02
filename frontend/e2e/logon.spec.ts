@@ -20,9 +20,12 @@ test.describe("Logon", () => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ name: "ONG Teste" }),
+        body: JSON.stringify({ name: "ONG Teste", token: "e2e.token.valido" }),
       });
     });
+    await page.route(/localhost:3333\/profile/, (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+    );
 
     await page.goto("/");
     await page.getByPlaceholder("Sua ID").fill("abc12345");
@@ -30,6 +33,9 @@ test.describe("Logon", () => {
 
     await expect(page).toHaveURL("/profile");
     await expect(page.getByText(/bem vinda, ONG Teste/i)).toBeVisible();
+    // Guarda o token devolvido pelo backend; o ID digitado não fica salvo no navegador.
+    const stored = await page.evaluate(() => ({ ...localStorage }));
+    expect(stored).toEqual({ token: "e2e.token.valido", ongName: "ONG Teste" });
   });
 
   test("mostra erro quando login falha", async ({ page }) => {

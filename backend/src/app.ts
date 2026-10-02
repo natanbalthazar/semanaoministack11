@@ -6,12 +6,27 @@ import { generateOpenAPIDocument } from "./validations/schemas";
 
 const app = express();
 
-// Sem `origin`, o cors() libera QUALQUER origem a chamar a API. Ok para estudo/desenvolvimento;
-// em produção, restrinja: cors({ origin: "https://seu-front.com", ... }).
-// `exposedHeaders`: por padrão o navegador esconde do JS os headers customizados de respostas
-// de outra origem. Sem isso, o app web leria `X-Total-Count` como null ("Total de 0 casos").
-// No app nativo não faz diferença, porque CORS só existe no navegador.
-app.use(cors({ exposedHeaders: ["X-Total-Count"] }));
+/*
+ * CORS: quais SITES (origens) o navegador deixa ler as respostas da API.
+ * `CORS_ORIGIN` = lista separada por vírgula. Padrão: Next dev (3000) + Expo web (8081).
+ *
+ * - Origem na lista → resposta vem com `Access-Control-Allow-Origin` e o navegador libera.
+ * - Origem fora da lista → a API até responde, mas sem esse header; o navegador bloqueia o JS
+ *   de ler a resposta ("blocked by CORS policy"). Front em outra porta/domínio? Adicione aqui.
+ * - Sem header Origin (curl, app nativo, servidor) → passa normal.
+ *
+ * CORS NÃO é segurança da API: é uma regra do NAVEGADOR para proteger o usuário de sites
+ * maliciosos. curl, Postman ou um script ignoram CORS. Quem protege os dados é o token.
+ *
+ * `exposedHeaders`: por padrão o navegador esconde do JS os headers customizados de respostas
+ * de outra origem. Sem isso, o app web leria `X-Total-Count` como null ("Total de 0 casos").
+ */
+const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:3000,http://localhost:8081")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins, exposedHeaders: ["X-Total-Count"] }));
 
 // Converte o corpo JSON em `request.body`. Precisa vir ANTES das rotas: se vier depois,
 // os controllers recebem `request.body` undefined e a validação responde 400 para tudo.

@@ -9,24 +9,22 @@ import {
   createIncidentSchema,
   queryIncidentsSchema,
   paramsIncidentSchema,
-  authorizationHeaderSchema,
 } from "../validations/schemas";
 import { validate } from "../validations/middleware";
+import { ensureAuthenticated, rateLimit } from "../auth/middleware";
 
 // Para desacoplar o módulo de rotas do Express em uma nova variável
 const routes = Router();
 
 /*
- * Cada rota encadeia: validate(...) → controller. Se a validação falhar, responde 400
- * e o controller nem roda. A ordem importa: em POST /incidents o header é checado antes do body.
- *
- * Atenção: DELETE /incidents/:id não valida o header `Authorization` aqui. Sem ele o controller
- * responde 401 (e não 400) porque compara o dono do caso com `undefined`.
- * Mantido assim para não mudar o contrato que o frontend e o mobile já usam.
+ * Cada rota encadeia middlewares → controller. Se um deles responder (400, 401, 429), o resto nem roda.
+ * Nas rotas protegidas o `ensureAuthenticated` vem PRIMEIRO: sem token válido → 401, antes de
+ * validar body/params (não faz sentido dizer a um anônimo que o corpo está errado).
  */
 
 routes.post(
   "/sessions",
+  rateLimit(10, 60_000), // 10 tentativas de login por IP por minuto
   validate(createSessionSchema, "body"),
   SessionController.create,
 );
@@ -39,11 +37,7 @@ routes.post(
   OngController.create,
 );
 
-routes.get(
-  "/profile",
-  validate(authorizationHeaderSchema, "headers"),
-  ProfileController.index,
-);
+routes.get("/profile", ensureAuthenticated, ProfileController.index);
 
 routes.get(
   "/incidents",
@@ -53,13 +47,14 @@ routes.get(
 
 routes.post(
   "/incidents",
-  validate(authorizationHeaderSchema, "headers"),
+  ensureAuthenticated,
   validate(createIncidentSchema, "body"),
   IncidentController.create,
 );
 
 routes.delete(
   "/incidents/:id",
+  ensureAuthenticated,
   validate(paramsIncidentSchema, "params"),
   IncidentController.delete,
 );

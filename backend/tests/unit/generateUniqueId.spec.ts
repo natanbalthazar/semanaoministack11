@@ -2,11 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { generateUniqueId } from '../../src/utils/generateUniqueId';
 
 describe('Generate Unique ID', () => {
-  it('should generate an unique ID', () => {
-    // Criaremos um Id
+  it('gera um ID hex de 32 caracteres (128 bits), diferente a cada chamada', () => {
     const id = generateUniqueId();
-
-    // Validações em cima do Id - espera que o id tenha 8 caracteres
-    expect(id).toHaveLength(8);
+    expect(id).toMatch(/^[0-9a-f]{32}$/);
+    expect(generateUniqueId()).not.toBe(id);
   });
 });

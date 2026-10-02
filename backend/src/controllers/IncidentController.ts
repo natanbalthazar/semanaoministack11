@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { count, desc, eq } from "drizzle-orm";
 import { db } from "../database";
 import { incidents, ongs } from "../database/schema";
+import type { AuthLocals } from "../auth/middleware";
 
 // Quantos casos por página em GET /incidents.
 const PAGE_SIZE = 5;
@@ -44,14 +45,13 @@ export const IncidentController = {
   },
 
   /**
-   * POST /incidents: cria um caso para a ONG do header `Authorization`.
-   * O header já foi validado na rota; aqui ele é só o "dono" do caso.
-   * Atenção: com um ID de ONG inexistente o banco recusa o insert (chave estrangeira) e a API
-   * responde 500. No Express 4 esse mesmo caso derrubava o servidor inteiro.
+   * POST /incidents: cria um caso para a ONG dona do token.
+   * O `ensureAuthenticated` da rota já conferiu o token e deixou o ID em `response.locals.ongId`.
+   * Nunca aceite o dono do caso vindo do body: o cliente poderia criar casos em nome de outra ONG.
    */
-  async create(request: Request, response: Response) {
+  async create(request: Request, response: Response<unknown, AuthLocals>) {
     const { title, description, value } = request.body;
-    const ongId = request.headers.authorization as string;
+    const { ongId } = response.locals;
 
     const [{ id }] = await db
       .insert(incidents)
@@ -63,13 +63,15 @@ export const IncidentController = {
 
   /**
    * DELETE /incidents/:id
+   * - sem token válido → 401 (barrado antes, no `ensureAuthenticated`)
    * - caso não existe → 404
-   * - caso existe, mas é de outra ONG (ou sem header `Authorization`) → 401
-   * - caso é da ONG do header → 204 sem corpo
+   * - caso existe, mas é de outra ONG → 403 (você está logado, só não pode mexer nisso).
+   *   Não é 401 de propósito: 401 faz o front encerrar a sessão, e a sessão está ok.
+   * - caso é da ONG do token → 204 sem corpo
    */
-  async delete(request: Request, response: Response) {
+  async delete(request: Request, response: Response<unknown, AuthLocals>) {
     const id = Number(request.params.id);
-    const ongId = request.headers.authorization;
+    const { ongId } = response.locals;
 
     // É necessário também buscar o id da ong para verificar se o nosso incidente
     // que está para ser deletado realmente foi criado pela ong que quer deletá-lo
@@ -84,7 +86,7 @@ export const IncidentController = {
     }
 
     if (incident.ongId !== ongId) {
-      return response.status(401).json({ error: "Operation not permitted." });
+      return response.status(403).json({ error: "Operation not permitted." });
     }
 
     await db.delete(incidents).where(eq(incidents.id, id));

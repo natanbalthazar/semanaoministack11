@@ -2,6 +2,14 @@
 
 Interface web do Be The Hero (Semana OmniStack 11 da Rocketseat). ONGs se cadastram, fazem logon com o ID recebido e gerenciam os casos que precisam de ajuda.
 
+## Sessão (token)
+
+- O logon envia o ID uma única vez (`POST /sessions`) e guarda no `localStorage` o **token** devolvido (+ o nome, só para exibir). O ID não fica salvo.
+- `lib/api.ts` envia `Authorization: Bearer <token>` nas chamadas com `{ auth: true }`; as páginas não montam header.
+- Token expirado/inválido (a API responde 401) → a sessão é limpa e o `RequireAuth` volta para o logon com o aviso "Sua sessão expirou".
+- O token dura 7 dias. Em dev, se o backend estiver sem `AUTH_SECRET`, cada restart dele invalida o token (é só logar de novo).
+- O front precisa estar em uma origem liberada no `CORS_ORIGIN` do backend (padrão: `http://localhost:3000`).
+
 ## Stack
 
 - **Framework:** Next.js 16 (App Router, Turbopack)
@@ -71,7 +79,7 @@ frontend/
 
 ## Testes E2E (Playwright)
 
-Rodam no Chromium e simulam a API com `page.route`, então o backend não precisa estar rodando. O Playwright sobe o `pnpm dev` sozinho.
+Rodam no Chromium e simulam a API com `page.route`, então o backend não precisa estar rodando. O Playwright sobe o `pnpm dev` sozinho. Os mocks das rotas protegidas conferem o header `Bearer`, como o backend real.
 
 ```bash
 pnpm exec playwright install chromium   # primeira vez (ou depois de atualizar o Playwright)

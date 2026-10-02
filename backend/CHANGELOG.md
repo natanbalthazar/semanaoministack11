@@ -1,5 +1,25 @@
 # Changelog
 
+## Autenticação por token e CORS restrito (2026-10)
+
+> **BREAKING para clientes da API.** Quem chamava as rotas protegidas com o ID da ONG no header precisa fazer login e usar o token.
+
+| | Antes | Depois |
+|--|-------|--------|
+| `POST /sessions` | `{ name }` | `{ name, token }` (JWT HS256, 7 dias); 429 após 10 tentativas/min por IP |
+| Rotas protegidas | `Authorization: <id da ONG>` | `Authorization: Bearer <token>` (o ID cru dá 401) |
+| Sem header em `/profile` / `POST /incidents` | 400 | 401 `{ message }` |
+| `DELETE /incidents/:id` de outra ONG | 401 | **403** (401 só para token ausente/inválido) |
+| `GET /ongs` | incluía o `id` de todas as ONGs | sem o `id` |
+| ID de ONG novo | 8 hex (32 bits) | 32 hex (128 bits); os antigos continuam valendo |
+| CORS | qualquer origem | só `CORS_ORIGIN` (padrão: `localhost:3000` e `localhost:8081`) |
+
+- Novo `src/auth/` (token sem dependência nova, só `node:crypto`; middleware `ensureAuthenticated`; rate limit em memória).
+- `AUTH_SECRET` obrigatório em produção (o servidor não sobe sem ele); em dev é gerado a cada start.
+- `.env` carregado via `node --env-file-if-exists=.env` nos scripts `dev` e `start`; novo `.env.example`.
+- Swagger: esquema `bearerAuth` (botão Authorize) nas rotas protegidas e schemas de resposta atualizados.
+- Testes: token (adulterado, expirado, `alg` errado, malformado), 401 nas rotas protegidas (inclusive regressão do ID cru), 403 entre ONGs, CORS e rate limit.
+
 ## Atualização de dependências (2026-10)
 
 ### Versões

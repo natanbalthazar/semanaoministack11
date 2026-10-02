@@ -13,7 +13,7 @@ test.describe("Cadastrar novo caso (autenticado)", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.evaluate(() => {
-      localStorage.setItem("ongId", "test12345");
+      localStorage.setItem("token", "e2e.token.valido");
       localStorage.setItem("ongName", "ONG Teste");
     });
     await page.goto("/incidents/new");
@@ -36,8 +36,10 @@ test.describe("Cadastrar novo caso (autenticado)", () => {
   });
 
   test("redireciona para profile após cadastrar com sucesso", async ({ page }) => {
+    let authorization: string | undefined;
     await page.route(/localhost:3333\/incidents/, async (route) => {
       if (route.request().method() === "POST") {
+        authorization = await route.request().headerValue("authorization") ?? undefined;
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -54,6 +56,8 @@ test.describe("Cadastrar novo caso (autenticado)", () => {
     await page.getByRole("button", { name: /cadastrar/i }).click();
 
     await expect(page).toHaveURL("/profile");
+    // O caso é criado com o token da sessão, não com o ID da ONG.
+    expect(authorization).toBe("Bearer e2e.token.valido");
   });
 
   test("mostra erro quando a API falha", async ({ page }) => {

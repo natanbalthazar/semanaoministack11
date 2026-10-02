@@ -1,6 +1,6 @@
 {
   "name": "be-the-hero-frontend",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Frontend web do Be The Hero (Semana OmniStack 11 da Rocketseat): ONGs se cadastram, fazem logon e gerenciam casos que precisam de ajuda. Next.js + React + Tailwind.",
   "author": "Natan Balthazar",
   "private": true,

@@ -46,6 +46,8 @@ Cada app é independente, com seu próprio `package.json` e `pnpm-lock.yaml`. Ro
 
     pnpm db:migrate   # cria o banco SQLite com as tabelas (o banco não vem no repositório)
 
+    cp .env.example .env   # opcional em dev: AUTH_SECRET (obrigatório em produção), PORT, CORS_ORIGIN
+
     pnpm dev          # http://localhost:3333 · documentação: http://localhost:3333/api-docs
 
 # :gear: Testes

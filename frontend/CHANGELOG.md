@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 - Sessão por token
+
+Acompanha a mudança do backend: as rotas protegidas exigem `Authorization: Bearer <token>`.
+
+- Logon guarda `{ token, ongName }` (chaves `token`/`ongName` no `localStorage`); a chave antiga `ongId` é apagada ao logar/sair.
+- `lib/api.ts`: opção `{ auth: true }` envia o Bearer token; 401 limpa a sessão e leva ao logon com "Sua sessão expirou".
+- `useAuth` expõe `token`, `ongName` e `notice`; agora também reage a login/logout na mesma aba (evento `auth-change`).
+- `RequireAuth` entrega `{ token, ongName }` (antes `{ ongId, ongName }`).
+- Testes: unitários de `useAuth` e `lib/api`; mocks do Playwright com o novo contrato e e2e de token expirado.
+
 ## 0.3.0 - Next 16, Tailwind 4 e limpeza
 
 ### Dependências

@@ -7,7 +7,7 @@ import { FiPower, FiTrash2 } from "react-icons/fi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiDelete } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
-import { RequireAuth, type Ong } from "@/components/RequireAuth";
+import { RequireAuth, type Session } from "@/components/RequireAuth";
 
 type Incident = {
   id: number;
@@ -19,24 +19,25 @@ type Incident = {
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function ProfilePage() {
-  return <RequireAuth>{(ong) => <Profile {...ong} />}</RequireAuth>;
+  return <RequireAuth>{(session) => <Profile {...session} />}</RequireAuth>;
 }
 
-function Profile({ ongId, ongName }: Ong) {
+function Profile({ token, ongName }: Session) {
   const router = useRouter();
   const { clearAuth } = useAuth();
   const queryClient = useQueryClient();
 
-  // A chave identifica o cache. Inclui o ongId: se outra ONG logar → busca de novo,
+  // A chave identifica o cache. Inclui o token: se outra ONG logar → busca de novo,
   // em vez de mostrar os casos da ONG anterior.
-  const queryKey = ["profile", ongId];
+  const queryKey = ["profile", token];
   const { data: incidents, isPending, isError } = useQuery({
     queryKey,
-    queryFn: () => apiGet<Incident[]>("profile", { Authorization: ongId }),
+    // `auth: true` → o lib/api.ts envia o Bearer token (e trata o 401). Nada de header na mão.
+    queryFn: () => apiGet<Incident[]>("profile", { auth: true }),
   });
 
   const deleteIncident = useMutation({
-    mutationFn: (id: number) => apiDelete(`incidents/${id}`, { Authorization: ongId }),
+    mutationFn: (id: number) => apiDelete(`incidents/${id}`, { auth: true }),
     // Atualiza o cache localmente em vez de buscar a lista inteira de novo.
     onSuccess: (_, id) =>
       queryClient.setQueryData<Incident[]>(queryKey, (prev) => prev?.filter((i) => i.id !== id)),
