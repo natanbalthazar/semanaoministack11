@@ -1,21 +1,20 @@
 import { migrate } from "drizzle-orm/libsql/migrator";
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
 import path from "path";
+import { client, db } from ".";
 
-async function run() {
-  const dbPath =
-    process.env.NODE_ENV === "test"
-      ? path.resolve(__dirname, "test.sqlite")
-      : path.resolve(__dirname, "db.sqlite");
-
-  const client = createClient({ url: `file:${dbPath}` });
-  const db = drizzle(client);
-
-  await migrate(db, {
-    migrationsFolder: path.resolve(__dirname, "../../drizzle"),
-  });
-  client.close();
+/**
+ * `pnpm db:migrate`: aplica no banco os arquivos SQL de `drizzle/` que ainda não rodaram.
+ *
+ * O Drizzle registra cada migration aplicada na tabela `__drizzle_migrations`, então rodar
+ * de novo é seguro (não duplica nada). Mudou o `schema.ts`? Gere a migration com
+ * `pnpm db:generate` e depois rode este script. NÃO edite uma migration que já foi aplicada:
+ * crie uma nova.
+ */
+export async function runMigrations() {
+  await migrate(db, { migrationsFolder: path.resolve(__dirname, "../../drizzle") });
 }
 
-run();
+// Só executa (e fecha a conexão) quando chamado direto pela linha de comando, não quando importado pelos testes.
+if (require.main === module) {
+  runMigrations().finally(() => client.close());
+}

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import LogonPage from "@/app/page";
+import { Providers } from "@/components/Providers";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -20,7 +21,8 @@ vi.mock("next/image", () => ({
 
 describe("Logon", () => {
   it("exibe erro quando ID está vazio ao submeter", async () => {
-    render(<LogonPage />);
+    // A página usa React Query (useMutation), então precisa do QueryClientProvider.
+    render(<LogonPage />, { wrapper: Providers });
     const submitBtn = screen.getByRole("button", { name: /entrar/i });
     fireEvent.click(submitBtn);
     expect(await screen.findByText(/ID é obrigatório/i)).toBeInTheDocument();

@@ -1,78 +1,67 @@
-import { StyleSheet } from "react-native";
-import Constants from 'expo-constants';
+import { StyleSheet } from 'react-native';
+
+import { colors, commonStyles } from '../../theme';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: Constants.statusBarHeight + 20,
-  },
+  container: commonStyles.container,
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
+  header: commonStyles.header,
 
   incident: {
-    padding: 24,
-    borderRadius: 8,
-    backgroundColor: '#FFF',
-    marginBottom: 16,
+    ...commonStyles.card,
     marginTop: 48,
   },
 
   incidentProperty: {
     fontSize: 14,
-    color: '#41414d',
+    color: colors.label,
     fontWeight: 'bold',
     marginTop: 24,
+  },
+
+  firstProperty: {
+    marginTop: 0,
   },
 
   incidentValue: {
     marginTop: 8,
     fontSize: 15,
-    color: '#737380',
+    color: colors.text,
   },
 
-  contactBox: {
-    padding: 24,
-    borderRadius: 8,
-    backgroundColor: '#FFF',
-    marginBottom: 16,
-  },
+  contactBox: commonStyles.card,
 
   heroTitle: {
     fontWeight: 'bold',
     fontSize: 20,
-    color: '#13131A',
+    color: colors.title,
     lineHeight: 30,
   },
 
   heroDescription: {
     fontSize: 15,
-    color: '#737380',
+    color: colors.text,
     marginTop: 16,
   },
 
   actions: {
     marginTop: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
 
   action: {
-    backgroundColor: '#e02041',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     height: 50,
     width: '48%',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 
   actionText: {
     color: '#FFF',
     fontSize: 15,
-    fontWeight: 'bold'
-  }
-})
+    fontWeight: 'bold',
+  },
+});

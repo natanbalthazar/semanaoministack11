@@ -1,4 +1,43 @@
-# Changelog - Migração Backend para TypeScript, Drizzle e Swagger
+# Changelog
+
+## Atualização de dependências (2026-10)
+
+### Versões
+
+| Pacote | Antes | Depois |
+|--------|-------|--------|
+| express | 4.21 | **5.2** |
+| zod | 3.24 | **4.6** |
+| @asteasolutions/zod-to-openapi | 7.3 | **9.1** |
+| drizzle-orm | 0.38 | 0.45 |
+| drizzle-kit | 0.30 | 0.31 |
+| @libsql/client | 0.14 | 0.18 |
+| vitest | 2.1 | **5.0** |
+| typescript | 5.7 | **7.0** |
+| tsx | 4.19 | 4.23 |
+| supertest | 7.0 | 7.3 |
+| cross-env | 7.0 | removido (o Vitest já define `NODE_ENV=test`) |
+
+Node.js mínimo passou para **22.12** (exigência do Vitest 5). `package-lock.json` removido: o projeto usa só pnpm.
+
+### Adaptações
+
+- **Express 5:** `req.query` virou somente leitura, então o middleware `validate()` só valida (não reescreve a requisição).
+  Erros em controllers `async` agora chegam ao tratador de erros (500) em vez de derrubar o processo.
+- **Zod 4:** `error.errors` → `error.issues`, `.email()` → `z.email()`, `.passthrough()` → `z.looseObject()`.
+  O conteúdo de `details` nas respostas 400 mudou de formato (status e `message` continuam iguais).
+- **TypeScript 7:** `moduleResolution: node` foi removido → `module: NodeNext`.
+
+### Correções
+
+- `pnpm start` (build) abria `dist/database/db.sqlite`, um banco vazio, e toda rota quebrava. Agora dev e build usam `src/database/db.sqlite`.
+- `POST /incidents` com ID de ONG inexistente derrubava o servidor; agora responde 500.
+- Testes de integração em paralelo travavam o SQLite (`SQLITE_BUSY`); agora rodam em sequência.
+- `db.sqlite` e `test.sqlite` deixaram de ser versionados (já estavam no `.gitignore`).
+
+---
+
+## Migração Backend para TypeScript, Drizzle e Swagger
 
 Este documento descreve as mudanças realizadas na atualização do backend da aplicação Be The Hero (Semana O Ministack 11).
 
@@ -50,24 +89,9 @@ Este documento descreve as mudanças realizadas na atualização do backend da a
 - Adicionado retorno 404 no `DELETE /incidents/:id` quando o incidente não existe
 - Removidas migrations Knex duplicadas/vazias
 
-### Scripts disponíveis
+### Scripts e primeira execução
 
-```bash
-npm run dev        # Desenvolvimento com hot reload
-npm run build      # Compila TypeScript
-npm run start      # Inicia servidor (após build)
-npm test           # Executa testes
-npm run db:migrate # Aplica migrations
-npm run db:push    # Sincroniza schema (dev)
-npm run db:studio  # Interface visual do banco
-```
-
-### Primeira execução
-
-1. Instale as dependências: `npm install`
-2. Rode as migrations: `npm run db:migrate`
-3. Inicie o servidor: `npm run dev`
-4. Acesse a documentação: http://localhost:3333/api-docs
+Veja o [README.md](./README.md).
 
 ### Comentários preservados
 

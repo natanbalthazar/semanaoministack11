@@ -1,94 +1,89 @@
 # Frontend - Be The Hero
 
-Interface web para o projeto Be The Hero (Semana O Ministack 11). Permite cadastro de ONGs, login e gerenciamento de incidentes.
+Interface web do Be The Hero (Semana OmniStack 11 da Rocketseat). ONGs se cadastram, fazem logon com o ID recebido e gerenciam os casos que precisam de ajuda.
 
 ## Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router, Turbopack)
 - **React:** 19
-- **TypeScript**
-- **Estilização:** Tailwind CSS
-- **Formulários:** react-hook-form + zod
-- **HTTP:** fetch (lib/api.ts)
-- **Estado:** TanStack Query (opcional)
-- **Testes:** Vitest + Testing Library (unitários), Playwright (E2E visuais)
+- **TypeScript:** 6
+- **Estilização:** Tailwind CSS 4 (tema em `app/globals.css`, sem `tailwind.config`)
+- **Formulários:** react-hook-form + zod 4
+- **Dados da API:** fetch (`lib/api.ts`) + TanStack Query (cache, loading e erro)
+- **Testes:** Vitest + Testing Library (unitários), Playwright (E2E)
+- **Lint:** ESLint 9 (flat config em `eslint.config.mjs`)
 
 ## Pré-requisitos
 
-- Node.js 20+
-- Backend rodando em `http://localhost:3333` (ou `NEXT_PUBLIC_API_URL`)
-
-## Instalação
-
-```bash
-pnpm install
-# ou npm install / bun install
-```
+- Node.js 24 LTS (veja `.nvmrc`; o mínimo exigido pelo Vitest/jsdom é 22.22.2)
+- pnpm 10
+- Backend rodando em `http://localhost:3333` (ou na URL de `NEXT_PUBLIC_API_URL`) — só para usar o app; os testes não precisam dele
 
 ## Primeira execução
 
-1. Crie `.env.local` com:
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3333
-```
-
-2. Inicie o servidor de desenvolvimento:
-
 ```bash
+nvm use            # ou: fnm use
+pnpm install
+cp .env.local.example .env.local
 pnpm dev
 ```
 
-3. Acesse [http://localhost:3000](http://localhost:3000)
+Acesse [http://localhost:3000](http://localhost:3000).
+
+> `NEXT_PUBLIC_API_URL` é embutida no JavaScript no momento do build. Mudou a variável? Reinicie o `pnpm dev` ou rode `pnpm build` de novo.
 
 ## Scripts
 
 | Comando | Descrição |
 |---------|-----------|
 | `pnpm dev` | Servidor de desenvolvimento |
-| `pnpm build` | Build de produção |
-| `pnpm start` | Inicia o servidor (após build) |
-| `pnpm test` | Testes unitários (Vitest) |
-| `pnpm test:e2e` | Testes E2E (Playwright, abre navegador) |
+| `pnpm build` | Build de produção (não roda mais o lint) |
+| `pnpm start` | Servidor de produção (depois do build) |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | Checagem de tipos (`tsc --noEmit`) |
+| `pnpm test` | Testes unitários (Vitest, só `__tests__/`) |
+| `pnpm test:watch` | Vitest em modo watch |
+| `pnpm test:e2e` | Testes E2E (Playwright, headless) |
 | `pnpm test:e2e:ui` | Modo UI interativo do Playwright |
 | `pnpm test:e2e:headed` | E2E com navegador visível |
-| `pnpm lint` | Verifica lint |
 
 ## Rotas
 
 | Rota | Descrição |
 |------|-----------|
-| `/` | Login |
+| `/` | Logon |
 | `/register` | Cadastro de ONG |
-| `/profile` | Perfil (requer login) |
-| `/incidents/new` | Novo incidente (requer login) |
+| `/profile` | Casos da ONG (requer logon) |
+| `/incidents/new` | Novo caso (requer logon) |
 
 ## Estrutura
 
 ```
 frontend/
-├── app/              # App Router (páginas)
-├── components/       # Componentes reutilizáveis
+├── app/              # App Router (páginas e layout)
+├── components/       # Providers, RequireAuth, FormCard, FieldError
 ├── e2e/              # Testes E2E (Playwright)
-├── hooks/            # Hooks customizados
-├── lib/              # API, auth, validações
-├── public/           # Assets estáticos
+├── hooks/            # useAuth
+├── lib/              # api.ts, auth.ts, validations/
+├── public/           # Imagens
 └── __tests__/        # Testes unitários (Vitest)
 ```
 
 ## Testes E2E (Playwright)
 
-Os testes E2E rodam em navegador real (Chrome, Firefox, Safari) e usam mocks da API, sem necessidade do backend rodando:
+Rodam no Chromium e simulam a API com `page.route`, então o backend não precisa estar rodando. O Playwright sobe o `pnpm dev` sozinho.
 
 ```bash
-pnpm install
-npx playwright install   # instala os navegadores (primeira vez)
+pnpm exec playwright install chromium   # primeira vez (ou depois de atualizar o Playwright)
 pnpm test:e2e
 ```
 
-Para ver os testes rodando com o navegador visível: `pnpm test:e2e:headed`  
-Para o modo UI interativo: `pnpm test:e2e:ui`
+Se a porta 3000 já estiver ocupada por outro projeto, use outra porta, senão o Playwright reaproveita o servidor errado:
+
+```bash
+PORT=3100 pnpm test:e2e
+```
 
 ## Documentação das mudanças
 
-Veja o [CHANGELOG.md](./CHANGELOG.md) para o histórico de migrações.
+Veja o [CHANGELOG.md](./CHANGELOG.md).

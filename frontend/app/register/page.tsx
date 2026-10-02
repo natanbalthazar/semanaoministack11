@@ -1,131 +1,68 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import type { z } from "zod";
 import { apiPost } from "@/lib/api";
-import { registerSchema, type RegisterInput } from "@/lib/validations/schemas";
+import { registerSchema } from "@/lib/validations/schemas";
+import { FieldError } from "@/components/FieldError";
+import { FormCard } from "@/components/FormCard";
 
-// Função responsável por fazer o cadastro do usuário.
-// Para validar se deu certo - try/catch
 export default function RegisterPage() {
-  const [error, setError] = useState("");
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterInput>({
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      whatsapp: "",
-      city: "",
-      uf: "",
+    defaultValues: { name: "", email: "", whatsapp: "", city: "", uf: "" },
+  });
+
+  const createOng = useMutation({
+    mutationFn: (data: z.infer<typeof registerSchema>) => apiPost<{ id: string }>("ongs", data),
+    onSuccess: ({ id }) => {
+      // O ID gerado pelo backend é o "login" da ONG: precisa ser mostrado ao usuário.
+      alert(`Seu ID de acesso: ${id}`);
+      router.push("/");
     },
   });
 
-  async function onSubmit(data: RegisterInput) {
-    setError("");
-    try {
-      const response = await apiPost<{ id: string }>("ongs", data);
-      // Resposta ao usuário: mostrar o ID gerado
-      alert(`Seu ID de acesso: ${response.id}`);
-      router.push("/");
-    } catch {
-      setError("Erro no cadastro, tente novamente.");
-    }
-  }
-
   return (
-    <div className="w-full max-w-[1120px] min-h-screen mx-auto flex items-center justify-center">
-      <div className="w-full p-24 bg-gray-soft shadow-[0_0_100px_rgba(0,0,0,0.1)] rounded-lg flex justify-between items-center">
-        <section className="w-full max-w-[380px]">
-          <Image
-            src="/logo.svg"
-            alt="Be The Hero"
-            width={250}
-            height={106}
-            priority
-          />
-          <h1 className="mt-16 mb-8 text-3xl font-bold">Cadastro</h1>
-          <p className="text-lg text-gray-text leading-8">
-            Faça seu cadastro, entre na plataforma e ajude pessoas a encontrarem
-            os casos da sua ONG.
-          </p>
-          <Link href="/" className="back-link">
-            <FiArrowLeft size={16} color="#E02041" />
-            Já possui cadastro
-          </Link>
-        </section>
+    <FormCard
+      title="Cadastro"
+      description="Faça seu cadastro, entre na plataforma e ajude pessoas a encontrarem os casos da sua ONG."
+      backHref="/"
+      backLabel="Já possui cadastro"
+    >
+      <form
+        onSubmit={handleSubmit((data) => createOng.mutate(data))}
+        className="w-full max-w-[450px] space-y-2"
+      >
+        <input placeholder="Nome da ONG" aria-label="Nome da ONG" className="form-input" {...register("name")} />
+        <FieldError message={errors.name?.message} />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-[450px] space-y-2"
-        >
-          <input
-            placeholder="Nome da ONG"
-            className="form-input"
-            {...register("name")}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
-          )}
+        <input type="email" placeholder="E-mail" aria-label="E-mail" className="form-input" {...register("email")} />
+        <FieldError message={errors.email?.message} />
 
-          <input
-            type="email"
-            placeholder="E-mail"
-            className="form-input"
-            {...register("email")}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email.message}</p>
-          )}
+        <input placeholder="WhatsApp" aria-label="WhatsApp" className="form-input" {...register("whatsapp")} />
+        <FieldError message={errors.whatsapp?.message} />
 
-          <input
-            placeholder="WhatsApp"
-            className="form-input"
-            {...register("whatsapp")}
-          />
-          {errors.whatsapp && (
-            <p className="text-red-500 text-sm">{errors.whatsapp.message}</p>
-          )}
+        <div className="flex gap-2">
+          <input placeholder="Cidade" aria-label="Cidade" className="form-input flex-1" {...register("city")} />
+          <input placeholder="UF" aria-label="UF" className="form-input w-20" {...register("uf")} />
+        </div>
+        <FieldError message={errors.city?.message ?? errors.uf?.message} />
 
-          <div className="flex gap-2">
-            <input
-              placeholder="Cidade"
-              className="form-input flex-1"
-              {...register("city")}
-            />
-            <input
-              placeholder="UF"
-              className="form-input w-20"
-              {...register("uf")}
-            />
-          </div>
-          {(errors.city || errors.uf) && (
-            <p className="text-red-500 text-sm">
-              {errors.city?.message ?? errors.uf?.message}
-            </p>
-          )}
+        <FieldError message={createOng.isError ? "Erro no cadastro, tente novamente." : undefined} />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={isSubmitting}
-          >
-            Cadastrar
-          </button>
-        </form>
-      </div>
-    </div>
+        <button type="submit" className="btn-primary mt-0" disabled={createOng.isPending}>
+          Cadastrar
+        </button>
+      </form>
+    </FormCard>
   );
 }
