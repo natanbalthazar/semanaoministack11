@@ -5,26 +5,26 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assetS/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#E02941"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
     "web": {
       "favicon": "./assets/icon.png"
-    }
+    },
+    "plugins": [
+      "expo-mail-composer",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "imageWidth": 200,
+          "backgroundColor": "#E02041"
+        }
+      ]
+    ]
   }
 }
