@@ -1,0 +1,88 @@
+# Roda em todo PR e push na main. Cada app tem seu job, então um erro no mobile
+# não esconde o resultado do backend. Os PRs do Dependabot chegam com ✅ ou ❌.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Node 24 atende os três apps (backend >= 22.12, frontend ^24.15).
+env:
+  NODE_VERSION: 24
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: backend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm audit --audit-level high
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      # e2e: o Playwright sobe o `pnpm dev` sozinho (webServer) e simula a API, sem backend.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - run: pnpm audit --audit-level high
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: npx expo-doctor
+      # Gerar o bundle pega erro de import/sintaxe sem precisar de celular ou emulador.
+      - run: npx expo export --platform web
+      - run: npx expo export --platform android
+      # Só "critical": o node-forge (alto) vem do @expo/cli e ainda não tem versão corrigida.
+      # É ferramenta de desenvolvimento e não vai para o app. Volte para "high" quando houver correção.
+      - run: pnpm audit --audit-level critical
