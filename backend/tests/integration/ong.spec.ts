@@ -26,6 +26,16 @@ describe("ONG", () => {
     });
 
     expect(response.body).toHaveProperty("id");
-    expect(response.body.id).toHaveLength(8);
+    expect(response.body.id).toHaveLength(32);
+  });
+
+  // O id é a credencial do login: se GET /ongs o devolvesse, qualquer um logaria como qualquer ONG.
+  it("lists ONGs without exposing their id", async () => {
+    const ong = { name: "ONG", email: "a@b.com", whatsapp: "11987654321", city: "SP", uf: "SP" };
+    await request(app).post("/ongs").send(ong);
+
+    const response = await request(app).get("/ongs");
+    expect(response.body).toEqual([ong]);
+    expect(response.body[0]).not.toHaveProperty("id");
   });
 });

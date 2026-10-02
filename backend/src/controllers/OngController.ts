@@ -4,10 +4,13 @@ import { ongs } from '../database/schema';
 import { generateUniqueId } from '../utils/generateUniqueId';
 
 export const OngController = {
-  // GET /ongs. Atenção: devolve o `id` de todas as ONGs, e esse id é a "senha" de login
-  // (header Authorization). Mantido por compatibilidade; numa API real isso não seria público.
+  // GET /ongs: lista pública, SEM o `id`. O id é a credencial do login (POST /sessions):
+  // se ele aparecer aqui → qualquer um faz login como qualquer ONG. Email/WhatsApp/cidade
+  // continuam porque já são públicos em GET /incidents (é o contato que o app mostra ao herói).
   async index(_request: Request, response: Response) {
-    const allOngs = await db.select().from(ongs);
+    const allOngs = await db
+      .select({ name: ongs.name, email: ongs.email, whatsapp: ongs.whatsapp, city: ongs.city, uf: ongs.uf })
+      .from(ongs);
     return response.json(allOngs);
   },
 
