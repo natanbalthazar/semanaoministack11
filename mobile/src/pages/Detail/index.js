@@ -5,6 +5,7 @@ import * as MailComposer from 'expo-mail-composer';
 
 import logoImg from '../../assets/logo.png';
 import formatCurrency from '../../utils/formatCurrency';
+import toWhatsappNumber from '../../utils/whatsappNumber';
 import { colors } from '../../theme';
 import styles from './styles';
 
@@ -39,14 +40,18 @@ export default function Detail() {
   }
 
   /**
-   * Abre o WhatsApp por deep link (whatsapp://). Dois cuidados:
+   * Abre a conversa pelo link oficial https://wa.me/<número>?text=...
+   * Por que não whatsapp://send? O wa.me é um link https comum: no celular com o app ele
+   * abre o WhatsApp direto; sem o app (ou no navegador/web) abre a página do WhatsApp,
+   * em vez de falhar. Cuidados:
+   * - O número precisa do código do país (toWhatsappNumber coloca o 55).
    * - O texto vai na URL, então precisa de encodeURIComponent: sem ele, um "&" ou "#"
    *   no título do caso cortava a mensagem no meio.
-   * - Se o WhatsApp não estiver instalado → openURL rejeita a Promise; avisamos o usuário.
+   * - Se nada conseguir abrir o link → openURL rejeita a Promise; avisamos o usuário.
    */
   async function sendWhatsapp() {
     try {
-      await Linking.openURL(`whatsapp://send?phone=${incident.whatsapp}&text=${encodeURIComponent(message)}`);
+      await Linking.openURL(`https://wa.me/${toWhatsappNumber(incident.whatsapp)}?text=${encodeURIComponent(message)}`);
     } catch {
       Alert.alert('WhatsApp indisponível', 'Não foi possível abrir o WhatsApp neste aparelho.');
     }

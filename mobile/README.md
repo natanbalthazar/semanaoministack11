@@ -46,6 +46,7 @@ pnpm android   # emulador/aparelho Android (instala o Expo Go certo se precisar)
 pnpm ios       # simulador iOS (só no macOS, com Xcode)
 pnpm web       # navegador
 pnpm doctor    # verifica dependências e configuração (expo-doctor)
+pnpm test      # testes das funções puras (node --test, sem dependências)
 ```
 
 ### Expo Go e o SDK 57
@@ -67,6 +68,27 @@ ainda distribuem o Expo Go do SDK 54, então:
 erros de import e de Babel. Não substitui o teste no aparelho, porque WhatsApp, e-mail e
 a barra de status só se comportam de verdade no celular.
 
+`pnpm test` roda os arquivos `*.test.mjs` com o test runner nativo do Node (`node:test`).
+Eles ficam fora do app: o Metro só empacota o que o app importa.
+
+## Ícone
+
+Os PNGs de `assets/` são gerados a partir dos SVGs ao lado (o desenho é o
+`frontend/public/logo.svg`, com HERO em branco e BE THE em rosa sobre o vermelho `#E02041`):
+
+| Arquivo | Uso | Detalhe |
+| --- | --- | --- |
+| `icon.png` (1024×1024) | iOS, web (favicon) e padrão | Fundo opaco, sem canal alfa (a Apple recusa transparência) |
+| `adaptive-icon.png` (1024×1024) | Android (`android.adaptiveIcon`) | Fundo transparente; a cor vem de `backgroundColor`. O logo fica dentro do círculo seguro (66 de 108 dp), porque cada launcher recorta de um jeito |
+
+Mudou um SVG? Gere os PNGs de novo (o `sharp-cli` roda via npx, não vira dependência):
+
+```bash
+cd mobile/assets
+npx sharp-cli -i icon.svg -o icon.png removeAlpha
+npx sharp-cli -i adaptive-icon.svg -o adaptive-icon.png
+```
+
 ## Observações
 
 - **pnpm:** funciona com o `node_modules` isolado padrão, sem `.npmrc`. Se o Metro algum
@@ -76,5 +98,6 @@ a barra de status só se comportam de verdade no celular.
   fica visível se o backend liberar o cabeçalho no CORS
   (`cors({ exposedHeaders: ['X-Total-Count'] })`). Sem isso, o web mostra "0 casos", mas
   a lista carrega normalmente. No celular isso não acontece, porque lá não existe CORS.
-- **WhatsApp:** o link usa o número salvo na ONG (`whatsapp://send?phone=...`). O
-  WhatsApp espera o número com o código do país (ex.: `55` + DDD + número).
+- **WhatsApp:** o botão abre `https://wa.me/<número>?text=...`, que funciona com ou sem
+  o app instalado (e no web). O backend salva só DDD + número, então
+  `src/utils/whatsappNumber.js` coloca o código do Brasil: `11987654321` → `5511987654321`.
